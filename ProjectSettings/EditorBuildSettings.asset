@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_root/Scenes/Level_1.unity
     guid: 9531ad1e19e4a584c9fd89a8fea164ff
+  - enabled: 1
+    path: Assets/_root/Scenes/Level_2.unity
+    guid: 2732b489d72e2ad43af4c9aba65513fe
+  - enabled: 1
+    path: Assets/_root/Scenes/MultiplayerArena.unity
+    guid: 2a9991bba67b0b34cbcb1b161262f6ff
   m_configObjects: {}
