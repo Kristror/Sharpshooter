@@ -17,7 +17,7 @@ namespace Photon.Pun.Demo.PunBasics
 		[SerializeField] private Dead dead;
 		[SerializeField] private MScorebord scorebord;
 
-		private MShooting mShooting;
+		private MPlayerInventory mPlayerInventory;
 		private MPlayerControlls mPlayerControlls;
 
 		void Start()
@@ -35,8 +35,7 @@ namespace Photon.Pun.Demo.PunBasics
 			{
 				GameObject player = PhotonNetwork.Instantiate(this.playerPrefab.name, playersSpawns.transform.GetChild(Random.Range(0, playersSpawns.transform.childCount)).position, Quaternion.identity, 0);
 				mPlayerControlls = player.GetComponent<MPlayerControlls>();
-				mShooting = player.GetComponent<MShooting>();
-				player.name = PlayerPrefs.GetString("PlayerName");
+				mPlayerInventory = player.GetComponent<MPlayerInventory>();
 
 				player.GetComponent<MPlayerInventory>().SetDead(dead);
 				player.GetComponent<MPlayerInventory>().SetPause(pauseMenu.GetComponent<MPauseMenu>());
@@ -58,7 +57,7 @@ namespace Photon.Pun.Demo.PunBasics
 				Cursor.lockState = CursorLockMode.None;
 				Cursor.visible = true;
 				mPlayerControlls.isPause = true;
-				mShooting.isPause = true;
+				mPlayerInventory.isPause = true;
 			}
 			if (Input.GetKeyDown(KeyCode.Tab))
 			{

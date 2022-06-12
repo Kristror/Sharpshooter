@@ -12,7 +12,7 @@ namespace Multiplayer
     public class MTimer : MonoBehaviour
     {
         [Header("Countdown time in seconds")]
-        [SerializeField] private float _round = 300f;
+        private float _round = 45f;
 
         [SerializeField] private MScorebord _mScorebord;
         [SerializeField] private TMP_Text _timer;

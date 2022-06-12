@@ -45,7 +45,7 @@ namespace Multiplayer
             Cursor.visible = false;
 
             MPlayerInventory.LocalPlayerInstance.GetComponent<MPlayerControlls>().isPause = false;
-            MPlayerInventory.LocalPlayerInstance.GetComponent<MShooting>().isPause = false;
+            MPlayerInventory.LocalPlayerInstance.GetComponent<MPlayerInventory>().isPause = false;
 
             _settingsMenu.SetActive(false);
             gameObject.SetActive(false);
