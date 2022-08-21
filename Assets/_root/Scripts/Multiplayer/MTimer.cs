@@ -8,10 +8,9 @@ using UnityEngine.SceneManagement;
 
 namespace Multiplayer
 {
-
     public class MTimer : MonoBehaviour
     {
-        [Header("Countdown time in seconds")]
+        [Header("Round time in seconds")]
         private float _round = 45f;
 
         [SerializeField] private MScorebord _mScorebord;
@@ -52,6 +51,8 @@ namespace Multiplayer
 
         private void MainMenu()
         {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             SceneManager.LoadScene("MainMenu");
         }
 

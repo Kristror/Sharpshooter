@@ -7,8 +7,9 @@ namespace Multiplayer
     public class MPlayerInventory : MonoBehaviourPunCallbacks, IPunObservable
     {
         [SerializeField] internal int _hpMax = 100;       
-        [SerializeField] private int _score;
+        [SerializeField] private int _score = 0;
         [SerializeField] private GameObject _bullet;
+        [SerializeField] private GameObject _nameTag;
 
         public static GameObject LocalPlayerInstance;
 
@@ -16,14 +17,16 @@ namespace Multiplayer
         private bool alive;
         private bool isFiring;
 
-        private Dead dead;
-        private MPauseMenu pause;
+        private MDeathMenu _mDeathMenu;
+        private MPauseMenu _mPauseMenu;
         private SoundController _soundController;
         private Renderer _renderer;
         private Collider _collider;
         private Rigidbody _rb;
 
         private string _killer;
+        private bool _scored;
+        private bool _scoredDeath;
 
         [HideInInspector] public bool isPause;
 
@@ -33,7 +36,9 @@ namespace Multiplayer
         {
             gameObject.name = PlayerPrefs.GetString("PlayerName");
             _killer = ""; 
+
             _bullet.SetActive(false);
+            _bullet.GetComponent<MBullet>().SetOwner(gameObject.name);
 
             _soundController = FindObjectOfType<SoundController>();
             mPlayerStatus = FindObjectOfType<MPlayerStatus>();            
@@ -43,10 +48,12 @@ namespace Multiplayer
             _rb = GetComponent<Rigidbody>();
 
             _hp = _hpMax;
-            _score  = 0;
-            alive = true;
             mPlayerStatus.UpdateHealth(_hp);
-            mPlayerStatus.UpdateScore(_score);
+
+            _score  = 0;
+            _scored = false;
+            _scoredDeath = false;
+            alive = true;
 
             if (photonView.IsMine)
             {
@@ -55,37 +62,46 @@ namespace Multiplayer
         }
         public int Score => _score;
 
-        public void ScorePints()
+        public void ScorePoints()
         {
-            _score += 3;
             if (photonView.IsMine)
             {
-                mPlayerStatus.UpdateScore(_score);
+                _score += 3;
             }
         }
-        public void SetDead(Dead d)
+        public void SetDeathMenu(MDeathMenu deathMenu)
         {
-            dead = d;           
+            _mDeathMenu = deathMenu;           
         }
 
-        public void SetPause(MPauseMenu p)
+        public void SetPause(MPauseMenu mPauseMenu)
         {
-            pause = p;           
+            _mPauseMenu = mPauseMenu;           
         }
 
         public void Revive()
         {
+            alive = true;
+            if (photonView.IsMine)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+
+                GetComponent<MPlayerControlls>().isPause = false;
+                isPause = false;
+            }
+            else
+                _nameTag.SetActive(true);
+
             _hp = _hpMax;
 
-            alive = true;
             _renderer.enabled = true;
             _collider.enabled = true;
-            _rb.isKinematic = false; 
-            
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            GetComponent<MPlayerControlls>().isPause = false;
-            isPause = false;
+            _rb.isKinematic = false;
+
+
+            _scored = false;
+            _scoredDeath = false;
         }
        
         private void Update()
@@ -110,35 +126,25 @@ namespace Multiplayer
         {
             if (stream.IsWriting)
             {
-                stream.SendNext(_hp);
                 stream.SendNext(_score);
                 stream.SendNext(alive);
                 stream.SendNext(isFiring);
                 stream.SendNext(gameObject.name);
-                stream.SendNext(_killer);
             }
             else
             {
-                _hp = (int)stream.ReceiveNext();
                 _score = (int)stream.ReceiveNext();
                 alive = (bool)stream.ReceiveNext();
                 isFiring = (bool)stream.ReceiveNext();
-                gameObject.name = (string)stream.ReceiveNext();
-                _killer = (string)stream.ReceiveNext();
+                gameObject.name = (string)stream.ReceiveNext(); 
             }
-            if (_hp <= 0 && alive)
+
+            if (!alive)
             {
-                _hp = 0;
                 Death();
             }
 
-            _bullet.GetComponent<MBullet>().SetOwner(gameObject.name);
             _bullet.SetActive(isFiring);
-            mPlayerStatus.UpdateHealth(_hp);
-
-            _renderer.enabled = alive;
-            _collider.enabled = alive;
-            _rb.isKinematic = !alive;
         }
  
         public int Hp => _hp;
@@ -147,10 +153,6 @@ namespace Multiplayer
 
         public void OnTriggerEnter(Collider other)
         {
-            if (!photonView.IsMine)
-            {
-                return;
-            }
             if (!other.CompareTag("Bullet"))
             {
                 return;
@@ -158,11 +160,16 @@ namespace Multiplayer
 
             MBullet bullet = other.GetComponent<MBullet>();
 
-            _hp -= bullet.damage;
-            _killer = bullet._owner;
-            _soundController.Hit();
-            if (photonView.IsMine)
+            if (!photonView.IsMine)
             {
+                _killer = bullet._owner;
+                return;
+            }
+            else
+            {
+                _hp -= bullet.damage;
+                _soundController.Hit();
+
                 if (_hp <= 0 && alive)
                 {
                     _hp = 0;
@@ -174,35 +181,35 @@ namespace Multiplayer
 
         public void Death()
         {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-
-            GetComponent<MPlayerControlls>().isPause = true;
-            isPause = true;
-
-            if (pause.gameObject.activeSelf)
-                pause.Resume();
-            dead.gameObject.SetActive(true);
-
-            if (_score > 0) _score--;
-            if (photonView.IsMine)
-            {
-                mPlayerStatus.UpdateScore(_score);
-            }
-
             alive = false;
             _renderer.enabled = false;
             _collider.enabled = false;
             _rb.isKinematic = true;
+            _nameTag.SetActive(false);
 
-            MPlayerInventory[] players = FindObjectsOfType<MPlayerInventory>();
-            foreach (var player in players)
+            if (photonView.IsMine)
             {
-                if (player.gameObject.name == _killer)
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+
+                GetComponent<MPlayerControlls>().isPause = true;
+                isPause = true;
+
+                if (_mPauseMenu.gameObject.activeSelf)
+                    _mPauseMenu.Resume();
+                _mDeathMenu.gameObject.SetActive(true);
+
+                if (_score > 0 && !_scoredDeath)                    
                 {
-                    player.ScorePints();
-                    break;
+                    _score--;
+                    _scoredDeath = true;
                 }
+            }
+            else
+            if(!_scored)
+            {
+                GameObject.Find(_killer).GetComponent<MPlayerInventory>().ScorePoints();
+                _scored = true;
             }
         }
     }

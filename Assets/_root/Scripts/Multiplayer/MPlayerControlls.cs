@@ -8,14 +8,13 @@ namespace Multiplayer
     {
         private float _walk_speed = 4;
         private float _run_speed = 8;
-        private float _jump_force = 3;
+        private float _jump_force = 12;
         private float _rotationY = 120;
         private float _maxjump = 0.15f;
 
         private float _speed;
         private float _timeOfjump;
         private Vector3 _direction;
-        private Quaternion _rotation;
 
         private Rigidbody _rb;
         [HideInInspector] public bool isPause;
@@ -23,9 +22,17 @@ namespace Multiplayer
 
         private SoundController _soundController;
 
+        private bool _isMoving;
+        private bool _isRuning;
+
+        private Vector3 _lastPosition = Vector3.zero;
+
         public void Awake()
         {
-            _rb = GetComponent<Rigidbody>();
+            _isMoving = false;
+            _isRuning = false;
+
+               _rb = GetComponent<Rigidbody>();
             _animator = GetComponent<Animator>();
 
             _soundController = FindObjectOfType<SoundController>();
@@ -65,11 +72,13 @@ namespace Multiplayer
             if (move != Vector3.zero)
             {
                 _animator.SetBool("IsMove", true);
+                _isMoving = true;
                 _soundController.Footsteps();
             }
             else
             {
                 _animator.SetBool("IsMove", false);
+                _isMoving = false;
                 _soundController.StopFootsteps();
             }
 
@@ -125,6 +134,15 @@ namespace Multiplayer
 
                     if (Input.GetAxis("Mouse X") != 0) Rotate(Input.GetAxis("Mouse X"));
                 }
+            }
+            else
+            {
+                if (_lastPosition != transform.position.normalized)
+                    _animator.SetBool("IsMove", true);
+                else
+                    _animator.SetBool("IsMove", false);
+
+                _lastPosition = transform.position.normalized;
 
             }
         }

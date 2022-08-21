@@ -14,7 +14,7 @@ namespace Photon.Pun.Demo.PunBasics
 		[SerializeField] private GameObject playersSpawns;
 
 		[SerializeField] private GameObject pauseMenu;
-		[SerializeField] private Dead dead;
+		[SerializeField] private MDeathMenu dead;
 		[SerializeField] private MScorebord scorebord;
 
 		private MPlayerInventory mPlayerInventory;
@@ -37,7 +37,7 @@ namespace Photon.Pun.Demo.PunBasics
 				mPlayerControlls = player.GetComponent<MPlayerControlls>();
 				mPlayerInventory = player.GetComponent<MPlayerInventory>();
 
-				player.GetComponent<MPlayerInventory>().SetDead(dead);
+				player.GetComponent<MPlayerInventory>().SetDeathMenu(dead);
 				player.GetComponent<MPlayerInventory>().SetPause(pauseMenu.GetComponent<MPauseMenu>());
 			}
 		}

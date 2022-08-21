@@ -38,17 +38,20 @@ public class SkeletonPatrol :Skeleton
 
     new private void FixedUpdate()
     {
-        if (target != null)
+        if (!_isDead)
         {
-            _navMeshAgent.SetDestination(target.transform.position);
-        }
-        else
-        {       
-            if ((_navMeshAgent.remainingDistance < _navMeshAgent.stoppingDistance)&&(patrol))
+            if (target != null)
             {
-                if ((_currentWaypoint + 1) == waypoints.Length) _currentWaypoint = 0;
-                else _currentWaypoint++;
-                _navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
+                _navMeshAgent.SetDestination(target.transform.position);
+            }
+            else
+            {
+                if ((_navMeshAgent.remainingDistance < _navMeshAgent.stoppingDistance) && (patrol))
+                {
+                    if ((_currentWaypoint + 1) == waypoints.Length) _currentWaypoint = 0;
+                    else _currentWaypoint++;
+                    _navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
+                }
             }
         }
     }

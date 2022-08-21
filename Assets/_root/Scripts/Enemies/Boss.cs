@@ -10,6 +10,7 @@ public class Boss : MonoBehaviour, IEntity
     [SerializeField] public float recharge = 2.5f;
 
     private GameObject target = null;
+    private bool _isDead = false;
     private NavMeshAgent _navMeshAgent;
     private Animator _animator;
     private bool _hit = true;
@@ -78,20 +79,27 @@ public class Boss : MonoBehaviour, IEntity
     public void Death()
     {
         _soundController.SkeletonDeath();
+        _isDead = true;
+    }
+    public void Destroy()
+    {
         Destroy(door);
         Destroy(gameObject);
     }
 
     public void Update()
     {
-        if (transform.position != _lastPos)
+        if (!_isDead)
         {
-            _lastPos = transform.position;
-            _animator.SetBool("isMove", true);
-        }
-        else
-        {
-            _animator.SetBool("isMove", false);
+            if (transform.position != _lastPos)
+            {
+                _lastPos = transform.position;
+                _animator.SetBool("isMove", true);
+            }
+            else
+            {
+                _animator.SetBool("isMove", false);
+            }
         }
     }
 }

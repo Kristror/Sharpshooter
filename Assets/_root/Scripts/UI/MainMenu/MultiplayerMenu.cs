@@ -42,6 +42,7 @@ namespace UI
             
             _exitButton.onClick.AddListener(PlaySound);
             _exitButton.onClick.AddListener(Exit);
+            _exitButton.enabled = false;
 
             _connectButton.onClick.AddListener(PlaySound);
             _connectButton.onClick.AddListener(Connect);
@@ -74,6 +75,7 @@ namespace UI
             }, OnCreateSuccess, OnFailure);
 
             _connectButton.enabled = true;
+            _exitButton.enabled = true;
         }
 
         private void OnFailure(PlayFabError obj)
@@ -85,6 +87,7 @@ namespace UI
         {
             feedbackText.text += System.Environment.NewLine + "Created Account";
             _connectButton.enabled = true;
+            _exitButton.enabled = true;
         }
         public void Login()
         {
@@ -102,6 +105,7 @@ namespace UI
             PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), CurrencySuccess, OnFailure);
             
             _connectButton.enabled = true;
+            _exitButton.enabled = true;
         }
 
         private void CurrencySuccess(GetUserInventoryResult obj)
@@ -124,6 +128,7 @@ namespace UI
         {
             PlayFabClientAPI.ForgetAllCredentials();
             _connectButton.enabled = false;
+            _exitButton.enabled = false;
         }
 
         private void SetPlayerPassword(string value)

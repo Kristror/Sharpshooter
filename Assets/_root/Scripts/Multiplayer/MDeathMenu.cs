@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Multiplayer
 {
-    public class Dead : MonoBehaviour
+    public class MDeathMenu : MonoBehaviour
     {
         [SerializeField] private Button _respawnButton;
         [SerializeField] private Button _quitButton;
@@ -19,9 +19,9 @@ namespace Multiplayer
         {
             soundController = FindObjectOfType<SoundController>();
 
-            _respawnButton.onClick.AddListener(Play); 
-            _respawnButton.onClick.AddListener(() => gameObject.SetActive(false));
+            _respawnButton.onClick.AddListener(Play);
             _respawnButton.onClick.AddListener(_gameManager.RespawnPlayer);
+            _respawnButton.onClick.AddListener(() => gameObject.SetActive(false));
 
             _quitButton.onClick.AddListener(Play);
             _quitButton.onClick.AddListener(Quit);

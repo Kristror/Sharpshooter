@@ -20,6 +20,7 @@ public class Skeleton : MonoBehaviour,IEntity
     private Animator _animator;
 
     private bool _hit = true;
+    internal bool _isDead = false;
     private bool _onStartPos = true;
     private Vector3 _lastPos;
 
@@ -95,17 +96,20 @@ public class Skeleton : MonoBehaviour,IEntity
 
     public void FixedUpdate()
     {
-        if (target != null)
+        if (!_isDead)
         {
-            _navMeshAgent.SetDestination(target.transform.position);
-            _onStartPos = false;
-        }
-        else
-        {
-            if((_navMeshAgent.remainingDistance == 0)&&(!_onStartPos))
+            if (target != null)
             {
-                _onStartPos = true;
-                transform.rotation = _strartRot;
+                _navMeshAgent.SetDestination(target.transform.position);
+                _onStartPos = false;
+            }
+            else
+            {
+                if ((_navMeshAgent.remainingDistance == 0) && (!_onStartPos))
+                {
+                    _onStartPos = true;
+                    transform.rotation = _strartRot;
+                }
             }
         }
     }
@@ -121,19 +125,27 @@ public class Skeleton : MonoBehaviour,IEntity
     public void Death()
     {
         _soundController.SkeletonDeath();
+        _animator.SetBool("isDead", true);
+    }
+
+    public void Destroy()
+    {
         Destroy(gameObject);
     }
 
     public void Update()
     {
-        if(transform.position != _lastPos)
+        if (!_isDead)
         {
-            _lastPos = transform.position;
-            _animator.SetBool("isMove", true);
-        }
-        else
-        {
-            _animator.SetBool("isMove", false);
+            if (transform.position != _lastPos)
+            {
+                _lastPos = transform.position;
+                _animator.SetBool("isMove", true);
+            }
+            else
+            {
+                _animator.SetBool("isMove", false);
+            }
         }
     }
 }
